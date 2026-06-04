@@ -14,7 +14,7 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
   const [isExporting, setIsExporting] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
 
-  const handleExportPDF = async () => {
+  const handleExportPDF = async (includeAnswers: boolean) => {
     if (!paperRef.current) return;
     setIsExporting(true);
     
@@ -50,18 +50,18 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // Temporarily hide answers for the export if they are currently shown
+      // Temporarily set answers state based on export choice
       const previousShowAnswers = showAnswers;
-      if (showAnswers) {
-        setShowAnswers(false);
-        // small timeout to let react re-render without answers
+      if (includeAnswers !== showAnswers) {
+        setShowAnswers(includeAnswers);
+        // small timeout to let react re-render
         await new Promise((resolve) => setTimeout(resolve, 100)); 
       }
 
       await html2pdf().set(opt).from(element).save();
 
-      if (previousShowAnswers) {
-        setShowAnswers(true);
+      if (includeAnswers !== previousShowAnswers) {
+        setShowAnswers(previousShowAnswers);
       }
     } catch (error) {
       console.error("PDF generation failed", error);
@@ -98,20 +98,30 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
             {showAnswers ? "Hide Answer Key" : "Show Answer Key"}
           </button>
         </div>
-        <button
-          onClick={handleExportPDF}
-          disabled={isExporting}
-          className="flex items-center gap-2 px-6 py-2 bg-accent-orange text-white text-sm font-bold rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-70"
-        >
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           {isExporting ? (
-            <span className="animate-pulse">Generating PDF...</span>
+            <div className="flex items-center gap-2 px-6 py-2 bg-accent-orange text-white text-sm font-bold rounded-xl opacity-70 cursor-not-allowed w-full justify-center">
+              <span className="animate-pulse">Generating PDF...</span>
+            </div>
           ) : (
             <>
-              <Download size={18} />
-              Export PDF
+              <button
+                onClick={() => handleExportPDF(false)}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-bg-white border border-border-light text-text-primary text-sm font-bold rounded-xl hover:bg-gray-50 transition-colors w-full sm:w-auto"
+              >
+                <Download size={18} />
+                Without Answers
+              </button>
+              <button
+                onClick={() => handleExportPDF(true)}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-accent-orange text-white text-sm font-bold rounded-xl hover:bg-orange-600 transition-colors w-full sm:w-auto"
+              >
+                <Download size={18} />
+                With Answers
+              </button>
             </>
           )}
-        </button>
+        </div>
       </div>
 
       {/* Printable Paper Area */}
@@ -128,9 +138,16 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
           <h2 className="text-lg font-semibold mb-4">
             Subject: {paper.header.subject} | Class: {paper.header.className}
           </h2>
-          <div className="flex justify-between items-center text-sm font-medium">
+          <div className="flex justify-between items-center text-sm font-medium mb-4">
             <span>Time Allowed: {paper.header.timeAllowed}</span>
             <span>Maximum Marks: {paper.header.maximumMarks}</span>
+          </div>
+
+          {/* Student Details Fields */}
+          <div className="flex justify-between items-end border-b border-gray-400 pb-2 mb-4 text-sm font-medium pt-2 text-gray-800">
+            <span className="flex-1 text-left">Name: ______________________</span>
+            <span className="flex-1 text-center">Roll No.: ______________</span>
+            <span className="flex-1 text-right">Section: ___________</span>
           </div>
           {paper.header.generalInstructions && (
             <div className="mt-4 text-left p-4 bg-gray-50 border border-gray-200 rounded-lg">
@@ -189,8 +206,8 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
 
                     {/* Answer Key Toggle */}
                     {showAnswers && q.answer && (
-                      <div className="ml-9 mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-900 animate-slide-up" data-html2canvas-ignore="true">
-                        <span className="font-bold text-green-700 flex items-center gap-1 mb-1">
+                      <div className="ml-9 mt-4 p-3 rounded-lg text-sm animate-slide-up" style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', borderWidth: '1px', color: '#14532d' }}>
+                        <span className="font-bold flex items-center gap-1 mb-1" style={{ color: '#15803d' }}>
                           <CheckCircle2 size={14} /> Answer Key:
                         </span>
                         {q.answer}

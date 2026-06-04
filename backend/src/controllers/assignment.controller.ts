@@ -30,15 +30,8 @@ export const createAssignment = async (
       0
     );
 
-    // Handle uploaded file info if present
-    const uploadedFile = req.file
-      ? {
-          fileName: req.file.originalname,
-          filePath: req.file.path,
-          fileType: req.file.mimetype,
-          fileSize: req.file.size,
-        }
-      : undefined;
+    // Handle uploaded file info if present (from frontend JSON body)
+    const uploadedFile = data.uploadedFile || undefined;
 
     // Create assignment in DB
     const assignment = await Assignment.create({
@@ -57,6 +50,7 @@ export const createAssignment = async (
       subject: data.subject,
       className: data.className,
       schoolName: data.schoolName || "",
+      timeAllowed: data.timeAllowed,
       questionTypes: data.questionTypes,
       totalQuestions,
       totalMarks,
@@ -110,7 +104,12 @@ export const listAssignments = async (
     const filter: Record<string, unknown> = {};
     if (status) filter.status = status;
     if (search) {
-      filter.$text = { $search: search };
+      const escapedSearch = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"); // Escape regex special chars
+      filter.$or = [
+        { title: { $regex: escapedSearch, $options: "i" } },
+        { subject: { $regex: escapedSearch, $options: "i" } },
+        { className: { $regex: escapedSearch, $options: "i" } },
+      ];
     }
 
     const [assignments, total] = await Promise.all([
@@ -239,6 +238,7 @@ export const regenerateAssignment = async (
       subject: assignment.subject,
       className: assignment.className,
       schoolName: assignment.schoolName,
+      timeAllowed: assignment.timeAllowed,
       questionTypes: assignment.questionTypes,
       totalQuestions: assignment.totalQuestions,
       totalMarks: assignment.totalMarks,

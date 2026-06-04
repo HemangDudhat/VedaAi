@@ -9,6 +9,7 @@ export const createAssignmentSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   className: z.string().min(1, "Class is required"),
   schoolName: z.string().optional().default(""),
+  timeAllowed: z.string().min(1, "Time allowed is required"),
   dueDate: z
     .string()
     .min(1, "Due date is required")
@@ -39,6 +40,14 @@ export const createAssignmentSchema = z.object({
     .max(2000, "Instructions cannot exceed 2000 characters")
     .optional()
     .default(""),
+  uploadedFile: z
+    .object({
+      fileName: z.string(),
+      filePath: z.string(),
+      fileType: z.string(),
+      fileSize: z.number(),
+    })
+    .optional(),
 });
 
 export type CreateAssignmentInput = z.infer<typeof createAssignmentSchema>;

@@ -6,6 +6,7 @@ interface AssignmentStore {
   isLoading: boolean;
   error: string | null;
   searchQuery: string;
+  statusFilter: string | null;
   currentPage: number;
   totalPages: number;
 
@@ -17,6 +18,7 @@ interface AssignmentStore {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setSearchQuery: (query: string) => void;
+  setStatusFilter: (status: string | null) => void;
   setCurrentPage: (page: number) => void;
   setTotalPages: (pages: number) => void;
 }
@@ -26,6 +28,7 @@ export const useAssignmentStore = create<AssignmentStore>((set) => ({
   isLoading: false,
   error: null,
   searchQuery: "",
+  statusFilter: null,
   currentPage: 1,
   totalPages: 1,
 
@@ -51,6 +54,7 @@ export const useAssignmentStore = create<AssignmentStore>((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
   setSearchQuery: (searchQuery) => set({ searchQuery, currentPage: 1 }),
+  setStatusFilter: (statusFilter) => set({ statusFilter, currentPage: 1 }),
   setCurrentPage: (currentPage) => set({ currentPage }),
   setTotalPages: (totalPages) => set({ totalPages }),
 }));

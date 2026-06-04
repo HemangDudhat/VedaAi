@@ -76,11 +76,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             href="/toolkit"
             className="
               flex items-center justify-center gap-2
-              w-full py-3 rounded-xl
-              border-2 border-accent-orange
-              bg-bg-white
-              text-sm font-semibold text-text-primary
-              hover:bg-bg-orange-light
+              w-full py-3 rounded-full
+              border-4 border-accent-orange
+              bg-[#2d2d2d]
+              text-sm font-semibold text-text-white
               transition-all duration-200
               group
             "

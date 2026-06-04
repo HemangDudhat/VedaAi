@@ -5,7 +5,7 @@ export const buildGenerationPrompt = (
   assignment: AssignmentDocument,
   fileText?: string
 ): string => {
-  const { title, subject, className, questionTypes, additionalInstructions } =
+  const { title, subject, className, questionTypes, additionalInstructions, schoolName, timeAllowed } =
     assignment;
 
   // Describe the assignment constraints
@@ -14,6 +14,12 @@ export const buildGenerationPrompt = (
   prompt += `- Title: ${title}\n`;
   prompt += `- Subject: ${subject}\n`;
   prompt += `- Class/Grade: ${className}\n`;
+  if (schoolName) {
+    prompt += `- School/College Name: ${schoolName}\n`;
+  }
+  if (timeAllowed) {
+    prompt += `- Time Allowed: ${timeAllowed}\n`;
+  }
 
   if (additionalInstructions) {
     prompt += `\n### Additional Instructions from the Teacher\n`;
@@ -45,7 +51,10 @@ export const buildGenerationPrompt = (
   }
 
   prompt += `\n### Output Constraints\n`;
-  prompt += `Return ONLY valid JSON matching the specified JSON Schema. Ensure appropriate difficulty (mix of easy, moderate, hard). Ensure 'options' array is populated for MCQ type questions. The 'answer' field should contain the correct answer or explanation.`;
+  prompt += `Return ONLY valid JSON matching the specified JSON Schema. Ensure appropriate difficulty (mix of easy, moderate, hard). Ensure 'options' array is populated for MCQ type questions. The 'answer' field should contain the correct answer or explanation.\n`;
+  prompt += `IMPORTANT: You MUST populate the "header" object with exactly the following values:\n`;
+  if (schoolName) prompt += `- schoolName: "${schoolName}"\n`;
+  if (timeAllowed) prompt += `- timeAllowed: "${timeAllowed}"\n`;
 
   return prompt;
 };

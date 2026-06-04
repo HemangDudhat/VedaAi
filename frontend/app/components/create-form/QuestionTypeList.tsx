@@ -5,7 +5,7 @@ import QuestionTypeRow from "./QuestionTypeRow";
 import { Plus } from "lucide-react";
 
 export default function QuestionTypeList() {
-  const { questionTypes, addQuestionType, removeQuestionType, updateQuestionType } = useCreateFormStore();
+  const { questionTypes, addQuestionType, removeQuestionType, updateQuestionType, moveQuestionTypeUp, moveQuestionTypeDown } = useCreateFormStore();
 
   const totalQuestions = questionTypes.reduce((sum, qt) => sum + qt.numberOfQuestions, 0);
   const totalMarks = questionTypes.reduce((sum, qt) => sum + (qt.numberOfQuestions * qt.marksPerQuestion), 0);
@@ -31,6 +31,10 @@ export default function QuestionTypeList() {
             onUpdate={updateQuestionType}
             onRemove={removeQuestionType}
             canRemove={questionTypes.length > 1}
+            onMoveUp={() => moveQuestionTypeUp(index)}
+            onMoveDown={() => moveQuestionTypeDown(index)}
+            isFirst={index === 0}
+            isLast={index === questionTypes.length - 1}
           />
         ))}
       </div>

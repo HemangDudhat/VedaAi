@@ -15,6 +15,10 @@ export default function AssignmentDetails() {
     setDueDate,
     additionalInstructions,
     setAdditionalInstructions,
+    schoolName,
+    setSchoolName,
+    timeAllowed,
+    setTimeAllowed,
     error,
   } = useCreateFormStore();
 
@@ -71,6 +75,34 @@ export default function AssignmentDetails() {
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
             className="w-full h-11 px-4 bg-bg-white border border-border rounded-xl text-sm text-text-primary focus:ring-2 focus:ring-accent-orange/20 focus:border-accent-orange outline-none transition-all"
+          />
+        </div>
+      </div>
+
+      {/* School Name & Time Allowed */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label className="block text-sm font-semibold text-text-primary mb-1.5">
+            School / College Name
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. Springfield High School"
+            value={schoolName}
+            onChange={(e) => setSchoolName(e.target.value)}
+            className="w-full h-11 px-4 bg-bg-white border border-border rounded-xl text-sm focus:ring-2 focus:ring-accent-orange/20 focus:border-accent-orange outline-none transition-all"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-text-primary mb-1.5">
+            Time Allowed <span className="text-accent-red">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. 2 Hours 30 Minutes"
+            value={timeAllowed}
+            onChange={(e) => setTimeAllowed(e.target.value)}
+            className="w-full h-11 px-4 bg-bg-white border border-border rounded-xl text-sm focus:ring-2 focus:ring-accent-orange/20 focus:border-accent-orange outline-none transition-all"
           />
         </div>
       </div>

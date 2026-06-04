@@ -22,13 +22,28 @@ export default function AssignmentsPage() {
     isLoading,
     error,
     searchQuery,
+    statusFilter,
     setAssignments,
     setLoading,
     setError,
     setSearchQuery,
+    setStatusFilter,
     removeAssignment,
     setTotalPages,
   } = useAssignmentStore();
+
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+
+  // Debounce search input to avoid API hammering
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
 
   // Fetch assignments
   const fetchAssignments = useCallback(async () => {
@@ -36,19 +51,19 @@ export default function AssignmentsPage() {
     setError(null);
     try {
       const response = (await assignmentApi.list({
-        search: searchQuery || undefined,
+        search: debouncedSearch || undefined,
+        status: statusFilter || undefined,
       })) as ApiResponse<AssignmentListData>;
       setAssignments(response.data.assignments);
       setTotalPages(response.data.totalPages);
     } catch (err) {
-      // If backend is not running, show empty state gracefully
       console.warn("Could not fetch assignments:", err);
       setAssignments([]);
       setError(null); // Don't show error for initial load
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, setAssignments, setLoading, setError, setTotalPages]);
+  }, [debouncedSearch, statusFilter, setAssignments, setLoading, setError, setTotalPages]);
 
   useEffect(() => {
     fetchAssignments();
@@ -70,6 +85,7 @@ export default function AssignmentsPage() {
   };
 
   const hasAssignments = assignments.length > 0;
+  const isInitialLoading = isLoading && assignments.length === 0 && !searchQuery && !statusFilter;
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-primary">
@@ -87,15 +103,15 @@ export default function AssignmentsPage() {
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto pb-24 lg:pb-6">
-          {isLoading ? (
-            // Loading State
+          {isInitialLoading ? (
+            // Full-Page Initial Loading State
             <div className="flex items-center justify-center h-64">
               <Loader2
                 size={32}
                 className="text-accent-orange animate-spin"
               />
             </div>
-          ) : !hasAssignments && !searchQuery ? (
+          ) : !hasAssignments && !searchQuery && !statusFilter ? (
             // Empty State
             <div className="flex items-center justify-center min-h-[calc(100vh-var(--topbar-height)-100px)]">
               <EmptyState />
@@ -121,6 +137,8 @@ export default function AssignmentsPage() {
                 <SearchBar
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
+                  statusFilter={statusFilter}
+                  onStatusFilterChange={setStatusFilter}
                 />
               </div>
 
@@ -131,8 +149,14 @@ export default function AssignmentsPage() {
                 </div>
               )}
 
-              {/* Assignment Grid */}
-              {hasAssignments ? (
+              {/* Assignment Grid / Search Results */}
+              {isLoading ? (
+                // Background Loading indicator for search/filter updates
+                <div className="flex flex-col items-center justify-center py-20">
+                  <Loader2 size={32} className="text-accent-orange animate-spin mb-3" />
+                  <p className="text-sm text-text-secondary">Updating assignments...</p>
+                </div>
+              ) : hasAssignments ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {assignments.map((assignment: Assignment, index: number) => (
                     <AssignmentCard
@@ -145,10 +169,13 @@ export default function AssignmentsPage() {
                   ))}
                 </div>
               ) : (
-                // No results for search
-                <div className="text-center py-16 animate-fade-in">
+                // No results for search or filter
+                <div className="text-center py-16 bg-bg-white border border-border rounded-2xl shadow-sm animate-fade-in">
                   <p className="text-text-muted text-sm">
-                    No assignments found for &ldquo;{searchQuery}&rdquo;
+                    No assignments found
+                  </p>
+                  <p className="text-xs text-text-muted mt-1">
+                    Try adjusting your search query or status filter.
                   </p>
                 </div>
               )}
@@ -157,7 +184,7 @@ export default function AssignmentsPage() {
         </main>
 
         {/* Create Button — Desktop: bottom center bar, Mobile: FAB */}
-        {(hasAssignments || searchQuery) && (
+        {(hasAssignments || searchQuery || statusFilter) && (
           <>
             <div className="hidden lg:block">
               <CreateButton variant="default" />

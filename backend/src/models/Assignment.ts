@@ -65,6 +65,11 @@ const assignmentSchema = new Schema<AssignmentDocument>(
       default: "",
       trim: true,
     },
+    timeAllowed: {
+      type: String,
+      required: [true, "Time allowed is required"],
+      trim: true,
+    },
     dueDate: {
       type: Date,
       required: [true, "Due date is required"],

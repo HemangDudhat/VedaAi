@@ -55,6 +55,7 @@ export interface IAssignment {
   subject: string;
   className: string;
   schoolName: string;
+  timeAllowed: string;
   dueDate: Date;
   questionTypes: QuestionTypeConfig[];
   totalQuestions: number;
@@ -111,6 +112,7 @@ export interface CreateAssignmentRequest {
   subject: string;
   className: string;
   schoolName: string;
+  timeAllowed: string;
   dueDate: string;
   questionTypes: QuestionTypeConfig[];
   additionalInstructions?: string;
@@ -149,6 +151,7 @@ export interface GenerationJobData {
   subject: string;
   className: string;
   schoolName: string;
+  timeAllowed: string;
   questionTypes: QuestionTypeConfig[];
   totalQuestions: number;
   totalMarks: number;

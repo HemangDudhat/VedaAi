@@ -9,6 +9,10 @@ interface QuestionTypeRowProps {
   onUpdate: (index: number, config: Partial<QuestionTypeConfig>) => void;
   onRemove: (index: number) => void;
   canRemove: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
 }
 
 export default function QuestionTypeRow({
@@ -17,6 +21,10 @@ export default function QuestionTypeRow({
   onUpdate,
   onRemove,
   canRemove,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
 }: QuestionTypeRowProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 p-4 bg-gray-50/50 rounded-xl border border-border-light relative group animate-slide-up">
@@ -74,22 +82,51 @@ export default function QuestionTypeRow({
           />
         </div>
 
-        {/* Remove Button */}
-        <button
-          onClick={() => onRemove(index)}
-          disabled={!canRemove}
-          className={`
-            h-11 w-11 flex items-center justify-center rounded-lg shrink-0
-            transition-colors duration-200
-            ${canRemove 
-              ? "text-text-muted hover:bg-red-50 hover:text-accent-red" 
-              : "text-gray-300 cursor-not-allowed"
-            }
-          `}
-          aria-label="Remove question type"
-        >
-          <Trash2 size={18} />
-        </button>
+        {/* Move & Remove Buttons */}
+        <div className="flex items-center gap-1 shrink-0">
+          <div className="flex flex-col gap-1">
+            <button
+              onClick={onMoveUp}
+              disabled={isFirst}
+              className={`
+                h-5 w-8 flex items-center justify-center rounded text-xs
+                transition-colors duration-200
+                ${isFirst ? "text-gray-300 cursor-not-allowed bg-gray-50" : "text-text-secondary hover:bg-gray-200 bg-gray-100"}
+              `}
+              aria-label="Move up"
+            >
+              ▲
+            </button>
+            <button
+              onClick={onMoveDown}
+              disabled={isLast}
+              className={`
+                h-5 w-8 flex items-center justify-center rounded text-xs
+                transition-colors duration-200
+                ${isLast ? "text-gray-300 cursor-not-allowed bg-gray-50" : "text-text-secondary hover:bg-gray-200 bg-gray-100"}
+              `}
+              aria-label="Move down"
+            >
+              ▼
+            </button>
+          </div>
+          
+          <button
+            onClick={() => onRemove(index)}
+            disabled={!canRemove}
+            className={`
+              h-11 w-11 flex items-center justify-center rounded-lg shrink-0
+              transition-colors duration-200 ml-2
+              ${canRemove 
+                ? "text-text-muted hover:bg-red-50 hover:text-accent-red" 
+                : "text-gray-300 cursor-not-allowed"
+              }
+            `}
+            aria-label="Remove question type"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       </div>
     </div>
   );
