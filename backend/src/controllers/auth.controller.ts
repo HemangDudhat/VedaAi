@@ -31,43 +31,37 @@ export const signup = async (
     // Check if email already exists
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
-      if (existing.isVerified) {
-        throw new AppError("An account with this email already exists.", 409);
-      }
-      // Resend OTP for unverified accounts
-      const otp = generateOTP();
-      const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-      await User.findByIdAndUpdate(existing._id, { otp, otpExpiresAt });
-      await sendOTPEmail(email, otp);
-      res.status(200).json({
-        success: true,
-        message: "OTP resent. Please verify your email.",
-        email,
-      });
-      return;
+      throw new AppError("An account with this email already exists.", 409);
     }
 
     const passwordHash = await hashPassword(password);
-    const otp = generateOTP();
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     const user = await User.create({
       firstName,
       lastName,
       email: email.toLowerCase(),
       passwordHash,
-      isVerified: false,
-      otp,
-      otpExpiresAt,
+      isVerified: true,
     });
 
-    await sendOTPEmail(email, otp);
+    const token = generateToken(user._id.toString());
+    res.cookie("token", token, COOKIE_OPTIONS);
+
     logger.info(`New user signup: ${email}`);
 
     res.status(201).json({
       success: true,
-      message: "Account created! Please verify your email with the OTP sent.",
-      email,
+      message: "Account created successfully!",
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        profileImageUrl: user.profileImageUrl,
+        schoolName: user.schoolName,
+        schoolAddress: user.schoolAddress,
+        schoolProfile: user.schoolProfile,
+      },
     });
   } catch (error) {
     next(error);
@@ -170,23 +164,7 @@ export const login = async (
     const isMatch = await comparePassword(password, user.passwordHash);
     if (!isMatch) throw new AppError("Invalid email or password.", 401);
 
-    if (!user.isVerified) {
-      // Resend OTP for unverified user
-      const otp = generateOTP();
-      const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-      user.otp = otp;
-      user.otpExpiresAt = otpExpiresAt;
-      await user.save();
-      await sendOTPEmail(email, otp);
 
-      res.status(403).json({
-        success: false,
-        error: "Email not verified.",
-        needsVerification: true,
-        email,
-      });
-      return;
-    }
 
     const token = generateToken(user._id.toString());
     res.cookie("token", token, COOKIE_OPTIONS);

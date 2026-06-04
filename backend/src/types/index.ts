@@ -51,6 +51,7 @@ export interface UploadedFileInfo {
 // --- Assignment (document shape) ---
 export interface IAssignment {
   _id?: string;
+  userId: string;
   title: string;
   subject: string;
   className: string;

@@ -29,11 +29,7 @@ export default function LoginPage() {
       setUser(data.user);
       router.push("/dashboard");
     } catch (err: any) {
-      if (err.needsVerification) {
-        router.push(`/auth/signup?step=verify&email=${encodeURIComponent(err.email)}`);
-      } else {
-        setError(err.message || "Login failed. Please try again.");
-      }
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

@@ -36,6 +36,7 @@ export const createAssignment = async (
     // Create assignment in DB
     const assignment = await Assignment.create({
       ...data,
+      userId: req.user?.userId,
       dueDate: new Date(data.dueDate),
       totalQuestions,
       totalMarks,
@@ -101,7 +102,9 @@ export const listAssignments = async (
     const { page, limit, search, status } = query;
 
     // Build filter
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      userId: req.user?.userId,
+    };
     if (status) filter.status = status;
     if (search) {
       const escapedSearch = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"); // Escape regex special chars
@@ -148,7 +151,7 @@ export const getAssignment = async (
   try {
     const { id } = req.params;
 
-    const assignment = await Assignment.findById(id).lean();
+    const assignment = await Assignment.findOne({ _id: id, userId: req.user?.userId }).lean();
     if (!assignment) {
       throw new AppError("Assignment not found", 404);
     }
@@ -185,7 +188,7 @@ export const deleteAssignment = async (
   try {
     const { id } = req.params;
 
-    const assignment = await Assignment.findById(id);
+    const assignment = await Assignment.findOne({ _id: id, userId: req.user?.userId });
     if (!assignment) {
       throw new AppError("Assignment not found", 404);
     }
@@ -220,7 +223,7 @@ export const regenerateAssignment = async (
   try {
     const { id } = req.params;
 
-    const assignment = await Assignment.findById(id);
+    const assignment = await Assignment.findOne({ _id: id, userId: req.user?.userId });
     if (!assignment) {
       throw new AppError("Assignment not found", 404);
     }

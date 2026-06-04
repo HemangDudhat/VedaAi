@@ -43,9 +43,9 @@ function SignupContent() {
     }
     setIsLoading(true);
     try {
-      await signupApi({ firstName, lastName, email, password });
-      setStep(2);
-      setCountdown(60);
+      const data = await signupApi({ firstName, lastName, email, password });
+      setUser(data.user);
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Signup failed.");
     } finally {
@@ -177,7 +177,7 @@ function SignupContent() {
 
               <button type="submit" disabled={isLoading}
                 className="w-full h-12 bg-[#f97316] hover:bg-orange-600 text-white font-bold rounded-xl text-sm transition-all shadow-sm shadow-orange-200 disabled:opacity-70 flex items-center justify-center gap-2">
-                {isLoading ? <><Loader2 size={18} className="animate-spin" /> Creating account...</> : "Create Account & Get OTP"}
+                {isLoading ? <><Loader2 size={18} className="animate-spin" /> Creating account...</> : "Create Account"}
               </button>
             </form>
           ) : (

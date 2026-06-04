@@ -44,6 +44,11 @@ export interface AssignmentDocument extends Omit<IAssignment, "_id">, Document {
 
 const assignmentSchema = new Schema<AssignmentDocument>(
   {
+    userId: {
+      type: Schema.Types.ObjectId as any,
+      ref: "User",
+      required: true,
+    },
     title: {
       type: String,
       required: [true, "Assignment title is required"],
@@ -122,6 +127,7 @@ const assignmentSchema = new Schema<AssignmentDocument>(
 );
 
 // --- Indexes ---
+assignmentSchema.index({ userId: 1 });
 assignmentSchema.index({ status: 1 });
 assignmentSchema.index({ createdAt: -1 });
 assignmentSchema.index({ title: "text" });
