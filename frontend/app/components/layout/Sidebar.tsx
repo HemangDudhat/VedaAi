@@ -11,7 +11,9 @@ import {
   Settings,
   Sparkles,
   X,
+  School,
 } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,15 +21,18 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { label: "Home", href: "/", icon: LayoutGrid },
+  { label: "Home", href: "/dashboard", icon: LayoutGrid },
   { label: "My Groups", href: "/groups", icon: Users },
-  { label: "Assignments", href: "/", icon: FileText, /*badge: 32*/ },
+  { label: "Assignments", href: "/dashboard", icon: FileText },
   { label: "AI Teacher's Toolkit", href: "/toolkit", icon: MonitorSmartphone },
   { label: "My Library", href: "/library", icon: Library },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuthStore();
+
+  const hasSchoolData = user?.schoolName || user?.schoolAddress;
 
   return (
     <>
@@ -98,7 +103,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             const Icon = item.icon;
             const isActive =
               item.label === "Assignments"
-                ? pathname === "/" || pathname.startsWith("/assignments")
+                ? pathname === "/dashboard" || pathname.startsWith("/assignments")
+                : item.label === "Home"
+                ? pathname === "/dashboard"
                 : pathname === item.href;
 
             return (
@@ -117,11 +124,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               >
                 <Icon size={20} strokeWidth={isActive ? 2.2 : 1.8} />
                 <span className="flex-1">{item.label}</span>
-                {item.badge && (
-                  <span className="bg-badge-count text-text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[24px] text-center">
-                    {item.badge}
-                  </span>
-                )}
               </Link>
             );
           })}
@@ -143,20 +145,46 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <span>Settings</span>
           </Link>
 
-          {/* School Info */}
-          <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-bg-primary">
-            <div className="w-10 h-10 bg-bg-white rounded-full flex items-center justify-center border border-border shadow-sm overflow-hidden">
-              <span className="text-xs font-bold text-accent-green">🏫</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-text-primary truncate">
-                Delhi Public School
-              </p>
-              <p className="text-xs text-text-muted truncate">
-                Bokaro Steel City
-              </p>
-            </div>
-          </div>
+          {/* School Info — dynamic from user profile */}
+          {hasSchoolData ? (
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl bg-bg-primary hover:bg-gray-100 transition-colors group"
+            >
+              <div className="w-10 h-10 bg-bg-white rounded-full flex items-center justify-center border border-border shadow-sm overflow-hidden shrink-0">
+                {user?.profileImageUrl ? (
+                  <img
+                    src={user.profileImageUrl}
+                    alt={user.schoolName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <School size={18} className="text-accent-orange" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-text-primary truncate">
+                  {user?.schoolName}
+                </p>
+                <p className="text-xs text-text-muted truncate">
+                  {user?.schoolAddress}
+                </p>
+              </div>
+            </Link>
+          ) : (
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl bg-bg-primary hover:bg-gray-100 transition-colors border-2 border-dashed border-border"
+            >
+              <div className="w-10 h-10 bg-bg-white rounded-full flex items-center justify-center border border-border shadow-sm shrink-0">
+                <School size={18} className="text-text-muted" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-text-muted">No school/college data</p>
+                <p className="text-xs text-accent-orange">Tap to add details →</p>
+              </div>
+            </Link>
+          )}
         </div>
       </aside>
     </>

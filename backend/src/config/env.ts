@@ -10,6 +10,15 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string({
     required_error: "GEMINI_API_KEY is required",
   }),
+  JWT_SECRET: z.string({
+    required_error: "JWT_SECRET is required",
+  }),
+  EMAIL_USER: z.string().optional().default(""),
+  EMAIL_PASS: z.string().optional().default(""),
+  EMAIL_FROM: z.string().optional().default("VedaAI <noreply@vedaai.com>"),
+  IMAGEKIT_PUBLIC_KEY: z.string().optional().default(""),
+  IMAGEKIT_PRIVATE_KEY: z.string().optional().default(""),
+  IMAGEKIT_URL_ENDPOINT: z.string().optional().default(""),
   CLIENT_URL: z.string().default("http://localhost:3000"),
   NODE_ENV: z
     .enum(["development", "production", "test"])

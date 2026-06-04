@@ -100,6 +100,7 @@ export default function CreateAssignmentPage() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/assignments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           ...payload,
           uploadedFile: uploadedFileInfo,

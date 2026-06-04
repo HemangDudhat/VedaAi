@@ -1,7 +1,11 @@
 "use client";
 
-import { ArrowLeft, Bell, ChevronDown, Menu } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { ArrowLeft, Bell, ChevronDown, Menu, LogOut, UserCog } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuthStore } from "@/store/useAuthStore";
+import { logoutApi } from "@/lib/auth";
 
 interface TopBarProps {
   title?: string;
@@ -15,6 +19,33 @@ export default function TopBar({
   onMenuClick,
 }: TopBarProps) {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = async () => {
+    setDropdownOpen(false);
+    logout();
+    await logoutApi();
+    router.push("/auth/login");
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const initials = user
+    ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+    : "?";
+
+  const displayName = user ? `${user.firstName} ${user.lastName}` : "User";
 
   return (
     <header
@@ -68,20 +99,66 @@ export default function TopBar({
           aria-label="Notifications"
         >
           <Bell size={20} className="text-text-secondary" />
-          {/* Notification dot */}
           <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-accent-orange rounded-full border-2 border-bg-white" />
         </button>
 
-        {/* User Profile */}
-        <button className="flex items-center gap-2 pl-2 pr-1 py-1.5 rounded-xl hover:bg-bg-primary transition-colors">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 flex items-center justify-center overflow-hidden shadow-sm">
-            <span className="text-white text-xs font-bold">JD</span>
-          </div>
-          <span className="text-sm font-medium text-text-primary hidden sm:block">
-            John Doe
-          </span>
-          <ChevronDown size={16} className="text-text-muted hidden sm:block" />
-        </button>
+        {/* User Profile Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen((o) => !o)}
+            className="flex items-center gap-2 pl-2 pr-1 py-1.5 rounded-xl hover:bg-bg-primary transition-colors"
+          >
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm border-2 border-white">
+              {user?.profileImageUrl ? (
+                <img
+                  src={user.profileImageUrl}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-orange-300 to-orange-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">{initials}</span>
+                </div>
+              )}
+            </div>
+            <span className="text-sm font-medium text-text-primary hidden sm:block">
+              {displayName}
+            </span>
+            <ChevronDown
+              size={16}
+              className={`text-text-muted hidden sm:block transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {/* Dropdown Menu */}
+          {dropdownOpen && (
+            <div className="absolute right-0 top-full mt-2 w-52 bg-bg-white rounded-2xl shadow-[var(--shadow-dropdown)] border border-border-light py-2 animate-scale-in z-50">
+              {/* User Info Header */}
+              <div className="px-4 py-2.5 border-b border-border-light mb-1">
+                <p className="text-sm font-semibold text-text-primary truncate">{displayName}</p>
+                <p className="text-xs text-text-muted truncate">{user?.email}</p>
+              </div>
+
+              <Link
+                href="/profile"
+                onClick={() => setDropdownOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:bg-bg-primary hover:text-text-primary transition-colors rounded-xl mx-1"
+              >
+                <UserCog size={16} />
+                Edit Profile
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-accent-red hover:bg-red-50 transition-colors rounded-xl mx-1 mt-1"
+              >
+                <LogOut size={16} />
+                Log Out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

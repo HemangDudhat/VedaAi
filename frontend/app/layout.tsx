@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 import WebSocketProvider from "./components/providers/WebSocketProvider";
+import { Providers } from "./providers";
 
 export default function RootLayout({
   children,
@@ -24,8 +25,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <WebSocketProvider />
-        {children}
+        <Providers>
+          <WebSocketProvider />
+          {children}
+        </Providers>
       </body>
     </html>
   );

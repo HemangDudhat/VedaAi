@@ -11,7 +11,7 @@ async function apiClient<T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> {
-  const { params, ...fetchOptions } = options;
+  const { params, headers: customHeaders, ...restOptions } = options;
 
   // Build URL with query params
   let url = `${API_BASE_URL}${endpoint}`;
@@ -28,12 +28,23 @@ async function apiClient<T>(
     }
   }
 
+  const isFormData = restOptions.body instanceof FormData;
+  
+  // We use Record<string, string> for simpler merging
+  const headers: Record<string, string> = {
+    ...((customHeaders as Record<string, string>) || {}),
+  };
+
+  if (!isFormData && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  } else if (isFormData && headers["Content-Type"]) {
+    delete headers["Content-Type"]; // let browser set boundary
+  }
+
   const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...fetchOptions.headers,
-    },
-    ...fetchOptions,
+    headers,
+    credentials: "include",
+    ...restOptions,
   });
 
   const data = await response.json();
