@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { X, FileText, FileImage } from "lucide-react";
 import { LibraryDocument } from "@/types";
 
@@ -12,13 +10,7 @@ interface DocumentPreviewModalProps {
 }
 
 export default function DocumentPreviewModal({ document, isOpen, onClose }: DocumentPreviewModalProps) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   if (!isOpen || !document) return null;
-  if (!mounted) return null;
 
   const getFileUrl = (filePath: string) => {
     // Replace all backslashes with forward slashes
@@ -38,7 +30,7 @@ export default function DocumentPreviewModal({ document, isOpen, onClose }: Docu
   const isImage = document.fileType.includes("image");
   const isPdf = document.fileType === "application/pdf" || document.fileName.endsWith(".pdf");
 
-  return createPortal(
+  return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-scale-in">
         
@@ -95,7 +87,6 @@ export default function DocumentPreviewModal({ document, isOpen, onClose }: Docu
           )}
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }

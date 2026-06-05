@@ -2,6 +2,8 @@
 // Frontend TypeScript Types
 // ========================
 
+import { JSX } from "react/jsx-runtime";
+
 // --- Question Type Enum ---
 export type QuestionTypeEnum =
   | "mcq"
@@ -53,6 +55,7 @@ export interface UploadedFileInfo {
 
 // --- Library Document ---
 export interface LibraryDocument {
+  body(arg0: JSX.Element, body: any): unknown;
   _id: string;
   userId: string;
   fileName: string;
