@@ -6,21 +6,22 @@ import { useCreateFormStore } from "@/store/useCreateFormStore";
 import { Upload, File as FileIcon, X, AlertCircle } from "lucide-react";
 
 export default function FileUpload() {
-  const { file, setFile, error } = useCreateFormStore();
+  const { files, setFiles, error } = useCreateFormStore();
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        setFile(acceptedFiles[0]);
+        const newFiles = [...files, ...acceptedFiles].slice(0, 5); // Max 5 files
+        setFiles(newFiles);
       }
     },
-    [setFile]
+    [files, setFiles]
   );
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     onDrop,
-    maxFiles: 1,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxFiles: 5,
+    maxSize: 20 * 1024 * 1024, // 20MB
     accept: {
       "application/pdf": [".pdf"],
       "text/plain": [".txt"],
@@ -29,9 +30,11 @@ export default function FileUpload() {
     },
   });
 
-  const removeFile = (e: React.MouseEvent) => {
+  const removeFile = (e: React.MouseEvent, index: number) => {
     e.stopPropagation();
-    setFile(null);
+    const newFiles = [...files];
+    newFiles.splice(index, 1);
+    setFiles(newFiles);
   };
 
   const formatBytes = (bytes: number) => {
@@ -72,25 +75,43 @@ export default function FileUpload() {
       >
         <input {...getInputProps()} />
 
-        {file ? (
-          // File Selected State
-          <div className="flex flex-col items-center text-center animate-scale-in">
-            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-blue-500 shadow-sm border border-blue-100">
-              <FileIcon size={32} />
+        {files.length > 0 ? (
+          // Files Selected State
+          <div className="w-full">
+            <h3 className="font-semibold text-text-primary mb-4 text-center">
+              Uploaded Files ({files.length}/5)
+            </h3>
+            <div className="space-y-3">
+              {files.map((file, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 bg-blue-50/50 rounded-xl border border-blue-100 animate-scale-in w-full max-w-sm mx-auto">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex shrink-0 items-center justify-center text-blue-500">
+                      <FileIcon size={20} />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-text-primary font-medium text-sm truncate w-40 sm:w-48 text-left">
+                        {file.name}
+                      </p>
+                      <p className="text-text-secondary text-xs text-left">
+                        {formatBytes(file.size)}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => removeFile(e, idx)}
+                    className="p-2 text-text-muted hover:text-accent-red hover:bg-red-50 rounded-lg transition-colors"
+                    title="Remove file"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              ))}
             </div>
-            <p className="text-text-primary font-semibold text-lg mb-1 max-w-sm truncate">
-              {file.name}
-            </p>
-            <p className="text-text-secondary text-sm mb-6">
-              {formatBytes(file.size)}
-            </p>
-            <button
-              onClick={removeFile}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-accent-red rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
-            >
-              <X size={16} />
-              Remove File
-            </button>
+            {files.length < 5 && (
+              <p className="text-sm text-text-secondary mt-6 text-center">
+                Click or drag to add more files (up to 5)
+              </p>
+            )}
           </div>
         ) : (
           // Empty State
@@ -99,16 +120,16 @@ export default function FileUpload() {
               <Upload size={28} />
             </div>
             <p className="text-text-primary font-semibold text-lg mb-2">
-              Drag & Drop your file here
+              Drag & Drop your files here
             </p>
             <p className="text-text-secondary text-sm mb-6 max-w-sm">
-              or click to browse from your computer
+              or click to browse from your computer (Up to 5 files)
             </p>
             
             <div className="flex items-center gap-4 text-xs text-text-muted font-medium bg-gray-50 px-4 py-2 rounded-lg border border-border-light">
               <span>PDF, TXT, JPG, PNG</span>
               <span className="w-1 h-1 rounded-full bg-border" />
-              <span>Max 10MB</span>
+              <span>Max 20MB total</span>
             </div>
           </div>
         )}
@@ -121,7 +142,7 @@ export default function FileUpload() {
         )}
       </div>
 
-      {error && !file && (
+      {error && files.length === 0 && (
         <p className="mt-3 text-accent-red text-sm font-medium flex items-center gap-1.5 justify-center animate-slide-up">
           <AlertCircle size={16} />
           {error}

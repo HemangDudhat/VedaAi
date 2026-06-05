@@ -102,9 +102,9 @@ const assignmentSchema = new Schema<AssignmentDocument>(
       default: "",
       maxlength: [2000, "Additional instructions cannot exceed 2000 characters"],
     },
-    uploadedFile: {
-      type: uploadedFileSchema,
-      default: undefined,
+    uploadedFiles: {
+      type: [uploadedFileSchema],
+      default: [],
     },
     status: {
       type: String,

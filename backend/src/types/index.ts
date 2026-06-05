@@ -62,7 +62,7 @@ export interface IAssignment {
   totalQuestions: number;
   totalMarks: number;
   additionalInstructions?: string;
-  uploadedFile?: UploadedFileInfo;
+  uploadedFiles?: UploadedFileInfo[];
   status: AssignmentStatus;
   jobId?: string;
   generatedPaper?: string;
@@ -157,5 +157,5 @@ export interface GenerationJobData {
   totalQuestions: number;
   totalMarks: number;
   additionalInstructions?: string;
-  uploadedFilePath?: string;
+  uploadedFiles?: UploadedFileInfo[];
 }

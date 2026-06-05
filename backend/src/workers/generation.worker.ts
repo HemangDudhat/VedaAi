@@ -50,40 +50,42 @@ export const initGenerationWorker = (): Worker => {
           },
         });
 
-        // Handle uploaded file if present
+        // Handle uploaded files if present
         let fileText: string | undefined = undefined;
-        let fileData: { mimeType: string; data: string } | undefined = undefined;
+        let fileDataArray: { mimeType: string; data: string }[] = [];
 
-        if (assignment.uploadedFile) {
+        if (assignment.uploadedFiles && assignment.uploadedFiles.length > 0) {
           await job.updateProgress(30);
           broadcast({
             event: "generation:progress",
             data: {
               assignmentId,
               progress: 30,
-              message: "Processing reference material...",
+              message: "Processing reference materials...",
             },
           });
 
-          // Uploaded files are typically stored in the 'uploads' directory
-          const filePath = assignment.uploadedFile.filePath;
-
           try {
-            if (assignment.uploadedFile.fileType === "text/plain") {
-              // Read text file directly into prompt
-              fileText = await fs.readFile(filePath, "utf-8");
-            } else {
-              // Read image/pdf as base64 for inlineData
-              const base64Data = await fs.readFile(filePath, "base64");
-              fileData = {
-                mimeType: assignment.uploadedFile.fileType,
-                data: base64Data,
-              };
+            let combinedText = "";
+            for (const file of assignment.uploadedFiles) {
+              const filePath = file.filePath;
+              if (file.fileType === "text/plain") {
+                // Read text file directly into prompt
+                const text = await fs.readFile(filePath, "utf-8");
+                combinedText += `\n--- Content from ${file.fileName} ---\n${text}\n`;
+              } else {
+                // Read image/pdf as base64 for inlineData
+                const base64Data = await fs.readFile(filePath, "base64");
+                fileDataArray.push({
+                  mimeType: file.fileType,
+                  data: base64Data,
+                });
+              }
             }
+            if (combinedText) fileText = combinedText;
           } catch (err: any) {
-            logger.error(`Failed to read uploaded file: ${err.message}`);
-            // We can choose to fail the job or proceed without the file. We'll fail it.
-            throw new Error(`Failed to read uploaded reference material: ${err.message}`);
+            logger.error(`Failed to read uploaded files: ${err.message}`);
+            throw new Error(`Failed to read uploaded reference materials: ${err.message}`);
           }
         }
 
@@ -111,7 +113,7 @@ export const initGenerationWorker = (): Worker => {
           },
         });
 
-        const generatedData = await generateQuestionPaper(prompt, fileData);
+        const generatedData = await generateQuestionPaper(prompt, fileDataArray.length > 0 ? fileDataArray : undefined);
 
         // Structure generated paper
         await job.updateProgress(90);

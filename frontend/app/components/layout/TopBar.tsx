@@ -94,13 +94,13 @@ export default function TopBar({
       {/* Right Section */}
       <div className="flex items-center gap-2">
         {/* Notification Bell */}
-        <button
+        {/* <button
           className="relative p-2.5 rounded-xl hover:bg-bg-primary transition-colors"
           aria-label="Notifications"
         >
           <Bell size={20} className="text-text-secondary" />
           <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-accent-orange rounded-full border-2 border-bg-white" />
-        </button>
+        </button> */}
 
         {/* User Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>

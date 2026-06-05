@@ -22,9 +22,9 @@ interface SidebarProps {
 
 const navItems = [
   { label: "Home", href: "/dashboard", icon: LayoutGrid },
-  { label: "My Groups", href: "/groups", icon: Users },
+  // { label: "My Groups", href: "/groups", icon: Users },
   { label: "Assignments", href: "/dashboard", icon: FileText },
-  { label: "AI Teacher's Toolkit", href: "/toolkit", icon: MonitorSmartphone },
+  // { label: "AI Teacher's Toolkit", href: "/toolkit", icon: MonitorSmartphone },
   { label: "My Library", href: "/library", icon: Library },
 ];
 
@@ -91,7 +91,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           >
             <Sparkles
               size={16}
-              className="text-accent-orange group-hover:scale-110 transition-transform"
+              className="text-white group-hover:scale-110 transition-transform"
             />
             AI Teacher&apos;s Toolkit
           </Link>
@@ -133,7 +133,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="px-3 pb-3 space-y-2">
           {/* Settings */}
           <Link
-            href="/settings"
+            href="/profile"
             className="
               flex items-center gap-3 px-3 py-2.5 rounded-xl
               text-sm font-medium text-text-secondary

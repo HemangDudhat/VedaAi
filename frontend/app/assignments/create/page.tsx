@@ -35,7 +35,7 @@ export default function CreateAssignmentPage() {
   
   const { 
     currentStep, 
-    file,
+    files,
     title,
     subject,
     className,
@@ -77,12 +77,12 @@ export default function CreateAssignmentPage() {
     
     setIsSubmitting(true);
     try {
-      let uploadedFileInfo = undefined;
+      let uploadedFilesInfo = undefined;
 
-      // 1. Upload File if selected
-      if (file) {
-        const uploadRes = await assignmentApi.uploadFile(file);
-        uploadedFileInfo = uploadRes.data;
+      // 1. Upload Files if selected
+      if (files && files.length > 0) {
+        const uploadRes = await assignmentApi.uploadFiles(files);
+        uploadedFilesInfo = uploadRes.data; // This is an array
       }
 
       // 2. Create Assignment (JSON payload)
@@ -103,7 +103,7 @@ export default function CreateAssignmentPage() {
         credentials: "include",
         body: JSON.stringify({
           ...payload,
-          uploadedFile: uploadedFileInfo,
+          uploadedFiles: uploadedFilesInfo,
         }),
       });
 

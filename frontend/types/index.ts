@@ -63,7 +63,7 @@ export interface Assignment {
   totalQuestions: number;
   totalMarks: number;
   additionalInstructions?: string;
-  uploadedFile?: UploadedFileInfo;
+  uploadedFiles?: UploadedFileInfo[];
   status: AssignmentStatus;
   jobId?: string;
   generatedPaper?: string;

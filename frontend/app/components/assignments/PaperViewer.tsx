@@ -23,13 +23,14 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
       
       const element = paperRef.current;
       const opt: any = {
-        margin: [10, 10], // top, left
+        margin: [15, 15], // top, left
         filename: `${assignmentTitle.replace(/\s+/g, '_')}_QuestionPaper.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg', quality: 1 },
         html2canvas: { 
           scale: 2, 
           useCORS: true, 
           logging: false,
+          windowWidth: 1024,
           onclone: (clonedDoc: Document) => {
             // Remove style rules containing oklch( or lab( to prevent html2canvas parsing errors
             Array.from(clonedDoc.styleSheets).forEach((sheet) => {
@@ -47,7 +48,8 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
             });
           }
         },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
       // Temporarily set answers state based on export choice
@@ -138,16 +140,16 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
           <h2 className="text-lg font-semibold mb-4">
             Subject: {paper.header.subject} | Class: {paper.header.className}
           </h2>
-          <div className="flex justify-between items-center text-sm font-medium mb-4">
-            <span>Time Allowed: {paper.header.timeAllowed}</span>
-            <span>Maximum Marks: {paper.header.maximumMarks}</span>
+          <div className="table w-full text-sm font-medium mb-4">
+            <div className="table-cell text-left w-1/2">Time Allowed: {paper.header.timeAllowed}</div>
+            <div className="table-cell text-right w-1/2">Maximum Marks: {paper.header.maximumMarks}</div>
           </div>
 
           {/* Student Details Fields */}
-          <div className="flex justify-between items-end border-b border-gray-400 pb-2 mb-4 text-sm font-medium pt-2 text-gray-800">
-            <span className="flex-1 text-left">Name: ______________________</span>
-            <span className="flex-1 text-center">Roll No.: ______________</span>
-            <span className="flex-1 text-right">Section: ___________</span>
+          <div className="table w-full border-b border-gray-400 pb-2 mb-4 text-sm font-medium pt-2 text-gray-800">
+            <div className="table-cell text-left w-1/3 align-bottom">Name: ______________________</div>
+            <div className="table-cell text-center w-1/3 align-bottom">Roll No.: ______________</div>
+            <div className="table-cell text-right w-1/3 align-bottom">Section: ___________</div>
           </div>
           {paper.header.generalInstructions && (
             <div className="mt-4 text-left p-4 bg-gray-50 border border-gray-200 rounded-lg">
@@ -168,23 +170,31 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
                 )}
               </div>
 
-              <div className="space-y-8">
+              <div className="mb-4">
                 {section.questions.map((q: any) => (
-                  <div key={q.questionNumber} className="relative group">
-                    <div className="flex items-start gap-3">
-                      <span className="font-bold min-w-[24px]">Q{q.questionNumber}.</span>
-                      <div className="flex-1">
+                  <div key={q.questionNumber} className="relative group mb-8">
+                    <div className="table w-full">
+                      <div className="table-cell align-top font-bold w-10 pr-2 pt-1">
+                        Q{q.questionNumber}.
+                      </div>
+                      <div className="table-cell align-top">
                         <p className="text-base font-medium mb-3 leading-relaxed">{q.text}</p>
                         
                         {/* Options for MCQ */}
                         {q.options && q.options.length > 0 && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 ml-2">
+                          <div className="mb-4">
                             {q.options.map((opt: string, oIdx: number) => (
-                              <div key={oIdx} className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center text-xs font-medium">
-                                  {String.fromCharCode(65 + oIdx)}
-                                </span>
-                                <span>{opt}</span>
+                              <div key={oIdx} className="inline-block w-full sm:w-1/2 mb-2 pr-2 align-top">
+                                <div className="table w-full">
+                                  <div className="table-cell w-8 align-top">
+                                    <span className="inline-block w-5 h-5 rounded-full border border-gray-400 text-center leading-[18px] text-xs font-medium">
+                                      {String.fromCharCode(65 + oIdx)}
+                                    </span>
+                                  </div>
+                                  <div className="table-cell align-top text-base pt-[1px]">
+                                    {opt}
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -192,7 +202,7 @@ export default function PaperViewer({ paper, assignmentTitle }: PaperViewerProps
                       </div>
 
                       {/* Marks */}
-                      <div className="font-bold shrink-0">
+                      <div className="table-cell align-top font-bold w-12 text-right pl-2 pt-1">
                         [{q.marks}]
                       </div>
                     </div>

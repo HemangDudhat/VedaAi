@@ -40,14 +40,18 @@ export const createAssignmentSchema = z.object({
     .max(2000, "Instructions cannot exceed 2000 characters")
     .optional()
     .default(""),
-  uploadedFile: z
-    .object({
-      fileName: z.string(),
-      filePath: z.string(),
-      fileType: z.string(),
-      fileSize: z.number(),
-    })
-    .optional(),
+  uploadedFiles: z
+    .array(
+      z.object({
+        fileName: z.string(),
+        filePath: z.string(),
+        fileType: z.string(),
+        fileSize: z.number(),
+      })
+    )
+    .max(5, "Maximum 5 files allowed")
+    .optional()
+    .default([]),
 });
 
 export type CreateAssignmentInput = z.infer<typeof createAssignmentSchema>;

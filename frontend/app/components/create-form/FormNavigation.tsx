@@ -8,7 +8,7 @@ interface FormNavigationProps {
 }
 
 export default function FormNavigation({ onSubmit }: FormNavigationProps) {
-  const { currentStep, nextStep, prevStep, isSubmitting } = useCreateFormStore();
+  const { currentStep, nextStep, prevStep, isSubmitting, files } = useCreateFormStore();
 
   return (
     <div className="w-full max-w-2xl mx-auto mt-10 pt-6 border-t border-border-light flex items-center justify-between animate-fade-in">
@@ -36,12 +36,14 @@ export default function FormNavigation({ onSubmit }: FormNavigationProps) {
       {currentStep === 1 ? (
         <button
           onClick={nextStep}
+          disabled={files.length === 0}
           className="
             flex items-center gap-2 px-8 py-3
             bg-bg-dark text-text-white
             text-sm font-semibold rounded-xl
             hover:bg-bg-dark-hover active:scale-[0.98]
             transition-all duration-200 shadow-md
+            disabled:opacity-50 disabled:cursor-not-allowed
           "
         >
           Next Step

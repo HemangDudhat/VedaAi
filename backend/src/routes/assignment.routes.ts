@@ -23,6 +23,6 @@ router.delete("/:id", deleteAssignment);
 router.post("/:id/regenerate", regenerateAssignment);
 
 // --- File Upload ---
-router.post("/upload", upload.single("file"), uploadFile);
+router.post("/upload", upload.array("files", 5), uploadFile);
 
 export default router;

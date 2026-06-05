@@ -66,19 +66,23 @@ const generatedPaperSchema: Schema = {
 
 export const generateQuestionPaper = async (
   prompt: string,
-  fileData?: { mimeType: string; data: string }
+  fileDataArray?: { mimeType: string; data: string }[]
 ) => {
   try {
     const contents: any[] = [{ text: prompt }];
 
-    // If file is provided, pass as inline data
-    if (fileData) {
-      contents.unshift({
+    // If files are provided, pass as inline data
+    if (fileDataArray && fileDataArray.length > 0) {
+      // Add each file as an inline data object to the contents array.
+      // Unshift adds them at the beginning. We reverse to keep original order if needed,
+      // but Gemini processes the array of parts linearly.
+      const inlineDatas = fileDataArray.map((file) => ({
         inlineData: {
-          mimeType: fileData.mimeType,
-          data: fileData.data, // Base64 encoded string
+          mimeType: file.mimeType,
+          data: file.data, // Base64 encoded string
         },
-      });
+      }));
+      contents.unshift(...inlineDatas);
     }
 
     const response = await ai.models.generateContent({

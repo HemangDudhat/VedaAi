@@ -77,9 +77,11 @@ export const assignmentApi = {
   regenerate: (id: string) =>
     apiClient(`/assignments/${id}/regenerate`, { method: "POST" }),
 
-  uploadFile: (file: File): Promise<{ success: boolean; data: any; error?: string }> => {
+  uploadFiles: (files: File[]): Promise<{ success: boolean; data: any; error?: string }> => {
     const formData = new FormData();
-    formData.append("file", file);
+    files.forEach(file => {
+      formData.append("files", file);
+    });
     return apiClient("/assignments/upload", {
       method: "POST",
       headers: {},

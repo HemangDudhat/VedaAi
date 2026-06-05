@@ -3,7 +3,7 @@ import type { QuestionTypeConfig } from "@/types";
 
 interface CreateFormState {
   // Step 1: Upload
-  file: File | null;
+  files: File[];
   
   // Step 2: Details
   title: string;
@@ -21,7 +21,7 @@ interface CreateFormState {
   error: string | null;
 
   // Actions
-  setFile: (file: File | null) => void;
+  setFiles: (files: File[]) => void;
   setTitle: (title: string) => void;
   setSubject: (subject: string) => void;
   setClassName: (className: string) => void;
@@ -49,7 +49,7 @@ interface CreateFormState {
 }
 
 const initialState = {
-  file: null,
+  files: [] as File[],
   title: "",
   subject: "",
   className: "",
@@ -73,7 +73,7 @@ const initialState = {
 export const useCreateFormStore = create<CreateFormState>((set) => ({
   ...initialState,
 
-  setFile: (file) => set({ file }),
+  setFiles: (files) => set({ files }),
   setTitle: (title) => set({ title }),
   setSubject: (subject) => set({ subject }),
   setClassName: (className) => set({ className }),

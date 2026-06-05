@@ -31,7 +31,7 @@ export const createAssignment = async (
     );
 
     // Handle uploaded file info if present (from frontend JSON body)
-    const uploadedFile = data.uploadedFile || undefined;
+    const uploadedFiles = data.uploadedFiles || [];
 
     // Create assignment in DB
     const assignment = await Assignment.create({
@@ -40,7 +40,7 @@ export const createAssignment = async (
       dueDate: new Date(data.dueDate),
       totalQuestions,
       totalMarks,
-      uploadedFile,
+      uploadedFiles,
       status: "pending",
     });
 
@@ -56,7 +56,7 @@ export const createAssignment = async (
       totalQuestions,
       totalMarks,
       additionalInstructions: data.additionalInstructions,
-      uploadedFilePath: uploadedFile?.filePath,
+      uploadedFiles: uploadedFiles.length > 0 ? uploadedFiles : undefined,
     };
 
     const queue = getGenerationQueue();
@@ -246,7 +246,7 @@ export const regenerateAssignment = async (
       totalQuestions: assignment.totalQuestions,
       totalMarks: assignment.totalMarks,
       additionalInstructions: assignment.additionalInstructions,
-      uploadedFilePath: assignment.uploadedFile?.filePath,
+      uploadedFiles: assignment.uploadedFiles?.length ? assignment.uploadedFiles : undefined,
     };
 
     const queue = getGenerationQueue();
@@ -287,22 +287,22 @@ export const uploadFile = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.file) {
-      throw new AppError("No file uploaded", 400);
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      throw new AppError("No files uploaded", 400);
     }
 
-    const fileInfo = {
-      fileName: req.file.originalname,
-      filePath: req.file.path,
-      fileType: req.file.mimetype,
-      fileSize: req.file.size,
-    };
+    const fileInfos = req.files.map((file: Express.Multer.File) => ({
+      fileName: file.originalname,
+      filePath: file.path,
+      fileType: file.mimetype,
+      fileSize: file.size,
+    }));
 
-    logger.info(`File uploaded: ${fileInfo.fileName} (${fileInfo.fileSize} bytes)`);
+    logger.info(`Files uploaded: ${fileInfos.length} files`);
 
     res.json({
       success: true,
-      data: fileInfo,
+      data: fileInfos,
     });
   } catch (error) {
     next(error);
