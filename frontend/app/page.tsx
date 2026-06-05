@@ -35,7 +35,7 @@ const features = [
   {
     icon: Upload,
     title: "Reference Material Upload",
-    desc: "Upload your own PDF, notes, or textbook pages and the AI generates questions strictly from your content.",
+    desc: "Upload your own PDF, notes, or textbook pages and the AI will generate questions strictly from your desired content.",
     color: "bg-blue-50 text-blue-600",
   },
   {
