@@ -13,13 +13,9 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "moduleResolution": "node",
-    "types": ["node"],
-    "baseUrl": ".",
+    "moduleResolution": "node10",
     "ignoreDeprecations": "5.0",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
