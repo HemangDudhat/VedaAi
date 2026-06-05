@@ -10,10 +10,12 @@ import {
 import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  secure: isProduction,           // HTTPS only in production
+  sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
@@ -198,7 +200,7 @@ export const logout = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    res.clearCookie("token", { httpOnly: true, sameSite: "lax" });
+    res.clearCookie("token", { httpOnly: true, secure: isProduction, sameSite: isProduction ? "none" : "lax" });
     res.json({ success: true, message: "Logged out successfully." });
   } catch (error) {
     next(error);

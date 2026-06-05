@@ -12,10 +12,20 @@ import { authMiddleware } from "./middleware/authMiddleware";
 
 const app = express();
 
+const allowedOrigins = [
+  env.CLIENT_URL,
+  "http://localhost:3000",
+].filter(Boolean);
+
 // --- Core Middleware ---
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, Postman, curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: Origin ${origin} not allowed`));
+    },
     credentials: true,
   })
 );
@@ -27,6 +37,9 @@ app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // --- Health Check ---
+app.get("/", (_req, res) => {
+  res.json({ success: true, message: "VedaAI API is live 🚀" });
+});
 app.get("/api/health", (_req, res) => {
   res.json({
     success: true,
