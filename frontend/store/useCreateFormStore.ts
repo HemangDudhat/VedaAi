@@ -1,9 +1,13 @@
 import { create } from "zustand";
-import type { QuestionTypeConfig } from "@/types";
+import type { QuestionTypeConfig, LibraryDocument } from "@/types";
+
+export type PageRange = { start?: number; end?: number };
 
 interface CreateFormState {
   // Step 1: Upload
   files: File[];
+  libraryFiles: LibraryDocument[];
+  filePageRanges: Record<string, PageRange>;
   
   // Step 2: Details
   title: string;
@@ -22,6 +26,8 @@ interface CreateFormState {
 
   // Actions
   setFiles: (files: File[]) => void;
+  setLibraryFiles: (files: LibraryDocument[]) => void;
+  setFilePageRange: (fileId: string, range: PageRange) => void;
   setTitle: (title: string) => void;
   setSubject: (subject: string) => void;
   setClassName: (className: string) => void;
@@ -50,6 +56,8 @@ interface CreateFormState {
 
 const initialState = {
   files: [] as File[],
+  libraryFiles: [] as LibraryDocument[],
+  filePageRanges: {} as Record<string, PageRange>,
   title: "",
   subject: "",
   className: "",
@@ -74,6 +82,11 @@ export const useCreateFormStore = create<CreateFormState>((set) => ({
   ...initialState,
 
   setFiles: (files) => set({ files }),
+  setLibraryFiles: (libraryFiles) => set({ libraryFiles }),
+  setFilePageRange: (fileId, range) => 
+    set((state) => ({
+      filePageRanges: { ...state.filePageRanges, [fileId]: range },
+    })),
   setTitle: (title) => set({ title }),
   setSubject: (subject) => set({ subject }),
   setClassName: (className) => set({ className }),

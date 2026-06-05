@@ -36,6 +36,7 @@ export default function CreateAssignmentPage() {
   const { 
     currentStep, 
     files,
+    libraryFiles,
     title,
     subject,
     className,
@@ -44,6 +45,7 @@ export default function CreateAssignmentPage() {
     dueDate,
     additionalInstructions,
     questionTypes,
+    filePageRanges,
     setIsSubmitting,
     setError,
     resetForm
@@ -77,12 +79,37 @@ export default function CreateAssignmentPage() {
     
     setIsSubmitting(true);
     try {
-      let uploadedFilesInfo = undefined;
+      let uploadedFilesInfo: any[] = [];
 
-      // 1. Upload Files if selected
+      // 1. Upload Fresh Files if selected
       if (files && files.length > 0) {
         const uploadRes = await assignmentApi.uploadFiles(files);
-        uploadedFilesInfo = uploadRes.data; // This is an array
+        // Map the uploaded file metadata to include the page ranges
+        uploadedFilesInfo = uploadRes.data.map((fileInfo: any, idx: number) => {
+          const freshFile = files[idx];
+          const fileId = `${freshFile.name}-${freshFile.size}`;
+          const pageRange = filePageRanges[fileId];
+          return {
+            ...fileInfo,
+            ...(pageRange?.start || pageRange?.end ? { pageRange } : {})
+          };
+        });
+      }
+
+      // Add library files to the payload array
+      if (libraryFiles && libraryFiles.length > 0) {
+        const mappedLibFiles = libraryFiles.map(doc => {
+          const fileId = `lib-${doc._id}`;
+          const pageRange = filePageRanges[fileId];
+          return {
+            fileName: doc.fileName,
+            filePath: doc.filePath,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize,
+            ...(pageRange?.start || pageRange?.end ? { pageRange } : {})
+          };
+        });
+        uploadedFilesInfo = [...uploadedFilesInfo, ...mappedLibFiles];
       }
 
       // 2. Create Assignment (JSON payload)
@@ -103,7 +130,7 @@ export default function CreateAssignmentPage() {
         credentials: "include",
         body: JSON.stringify({
           ...payload,
-          uploadedFiles: uploadedFilesInfo,
+          uploadedFiles: uploadedFilesInfo.length > 0 ? uploadedFilesInfo : undefined,
         }),
       });
 

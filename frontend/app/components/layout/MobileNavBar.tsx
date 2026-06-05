@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, FileText, Library, Sparkles } from "lucide-react";
+import { LayoutGrid, FileText, Library, Sparkles, MonitorSmartphone } from "lucide-react";
 
 const mobileNavItems = [
   { label: "Home", href: "/", icon: LayoutGrid },
   { label: "Assignments", href: "/", icon: FileText },
+    { label: "Create Assignment", href: "/assignments/create", icon: MonitorSmartphone },
+
   { label: "Library", href: "/library", icon: Library },
   { label: "AI Toolkit", href: "/toolkit", icon: Sparkles },
 ];

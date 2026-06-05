@@ -24,7 +24,7 @@ const navItems = [
   { label: "Home", href: "/dashboard", icon: LayoutGrid },
   // { label: "My Groups", href: "/groups", icon: Users },
   { label: "Assignments", href: "/dashboard", icon: FileText },
-  // { label: "AI Teacher's Toolkit", href: "/toolkit", icon: MonitorSmartphone },
+  { label: "Create Assignment", href: "/assignments/create", icon: MonitorSmartphone },
   { label: "My Library", href: "/library", icon: Library },
 ];
 
@@ -78,7 +78,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* AI Teacher's Toolkit CTA Button */}
         <div className="px-4 pb-4">
           <Link
-            href="/toolkit"
+            href="#"
             className="
               flex items-center justify-center gap-2
               w-full py-3 rounded-full

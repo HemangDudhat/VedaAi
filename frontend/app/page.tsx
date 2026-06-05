@@ -16,6 +16,7 @@ import {
   Zap,
   BookOpen,
   Users,
+  Library,
 } from "lucide-react";
 
 const features = [
@@ -44,17 +45,23 @@ const features = [
     color: "bg-purple-50 text-purple-600",
   },
   {
+    icon: Library,
+    title: "Intelligent Document Hub",
+    desc: "Upload your textbooks and syllabus once to your personal library, and instantly reuse them across multiple assignments without re-uploading.",
+    color: "bg-indigo-50 text-indigo-600",
+  },
+  {
     icon: Zap,
     title: "Instant Regeneration",
     desc: "Not satisfied? Regenerate questions with a single click while keeping all your paper settings intact.",
     color: "bg-yellow-50 text-yellow-600",
   },
-  {
-    icon: Users,
-    title: "School Profile",
-    desc: "Set up your school name, address and branding — automatically included in every generated paper header.",
-    color: "bg-pink-50 text-pink-600",
-  },
+  // {
+  //   icon: Users,
+  //   title: "School Profile",
+  //   desc: "Set up your school name, address and branding — automatically included in every generated paper header.",
+  //   color: "bg-pink-50 text-pink-600",
+  // },
 ];
 
 const steps = [

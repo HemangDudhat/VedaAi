@@ -46,6 +46,10 @@ export interface UploadedFileInfo {
   filePath: string;
   fileType: string;
   fileSize: number;
+  pageRange?: {
+    start?: number;
+    end?: number;
+  };
 }
 
 // --- Assignment (document shape) ---

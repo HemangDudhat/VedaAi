@@ -51,6 +51,19 @@ export interface UploadedFileInfo {
   fileSize: number;
 }
 
+// --- Library Document ---
+export interface LibraryDocument {
+  _id: string;
+  userId: string;
+  fileName: string;
+  filePath: string;
+  fileType: string;
+  fileSize: number;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 // --- Assignment ---
 export interface Assignment {
   _id: string;

@@ -47,6 +47,12 @@ export const createAssignmentSchema = z.object({
         filePath: z.string(),
         fileType: z.string(),
         fileSize: z.number(),
+        pageRange: z
+          .object({
+            start: z.number().optional(),
+            end: z.number().optional(),
+          })
+          .optional(),
       })
     )
     .max(5, "Maximum 5 files allowed")

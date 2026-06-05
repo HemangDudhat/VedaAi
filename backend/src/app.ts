@@ -6,6 +6,7 @@ import { env } from "./config/env";
 import assignmentRoutes from "./routes/assignment.routes";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import libraryRoutes from "./routes/library.routes";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { authMiddleware } from "./middleware/authMiddleware";
 
@@ -39,6 +40,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/assignments", authMiddleware, assignmentRoutes);
+app.use("/api/library", libraryRoutes);
 
 // --- Error Handling ---
 app.use(notFoundHandler);

@@ -3,19 +3,25 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useCreateFormStore } from "@/store/useCreateFormStore";
-import { Upload, File as FileIcon, X, AlertCircle } from "lucide-react";
+import { Upload, File as FileIcon, X, AlertCircle, Library } from "lucide-react";
+import LibraryModal from "../library/LibraryModal";
+import { useState } from "react";
 
 export default function FileUpload() {
-  const { files, setFiles, error } = useCreateFormStore();
+  const { files, setFiles, libraryFiles, setLibraryFiles, error, filePageRanges, setFilePageRange } = useCreateFormStore();
+  const [isLibraryModalOpen, setIsLibraryModalOpen] = useState(false);
+  
+  const totalFiles = files.length + libraryFiles.length;
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        const newFiles = [...files, ...acceptedFiles].slice(0, 5); // Max 5 files
+        const slotsLeft = 5 - libraryFiles.length;
+        const newFiles = [...files, ...acceptedFiles].slice(0, slotsLeft);
         setFiles(newFiles);
       }
     },
-    [files, setFiles]
+    [files, libraryFiles, setFiles]
   );
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
@@ -30,11 +36,17 @@ export default function FileUpload() {
     },
   });
 
-  const removeFile = (e: React.MouseEvent, index: number) => {
+  const removeFile = (e: React.MouseEvent, index: number, isLibraryDoc: boolean = false) => {
     e.stopPropagation();
-    const newFiles = [...files];
-    newFiles.splice(index, 1);
-    setFiles(newFiles);
+    if (isLibraryDoc) {
+      const newLibFiles = [...libraryFiles];
+      newLibFiles.splice(index, 1);
+      setLibraryFiles(newLibFiles);
+    } else {
+      const newFiles = [...files];
+      newFiles.splice(index, 1);
+      setFiles(newFiles);
+    }
   };
 
   const formatBytes = (bytes: number) => {
@@ -75,39 +87,146 @@ export default function FileUpload() {
       >
         <input {...getInputProps()} />
 
-        {files.length > 0 ? (
+        {totalFiles > 0 ? (
           // Files Selected State
           <div className="w-full">
             <h3 className="font-semibold text-text-primary mb-4 text-center">
-              Uploaded Files ({files.length}/5)
+              Selected Files ({totalFiles}/5)
             </h3>
             <div className="space-y-3">
-              {files.map((file, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-blue-50/50 rounded-xl border border-blue-100 animate-scale-in w-full max-w-sm mx-auto">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex shrink-0 items-center justify-center text-blue-500">
-                      <FileIcon size={20} />
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="text-text-primary font-medium text-sm truncate w-40 sm:w-48 text-left">
-                        {file.name}
-                      </p>
-                      <p className="text-text-secondary text-xs text-left">
-                        {formatBytes(file.size)}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => removeFile(e, idx)}
-                    className="p-2 text-text-muted hover:text-accent-red hover:bg-red-50 rounded-lg transition-colors"
-                    title="Remove file"
+              {/* Fresh Uploads */}
+              {files.map((file, idx) => {
+                const isPdf = file.type === "application/pdf" || file.name.endsWith(".pdf");
+                const fileId = `${file.name}-${file.size}`;
+                const pageRange = filePageRanges[fileId] || {};
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex flex-col p-3 bg-blue-50/50 rounded-xl border border-blue-100 animate-scale-in w-full max-w-sm mx-auto cursor-default"
                   >
-                    <X size={18} />
-                  </button>
-                </div>
-              ))}
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex shrink-0 items-center justify-center text-blue-500">
+                          <FileIcon size={20} />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-text-primary font-medium text-sm truncate w-40 sm:w-48 text-left">
+                            {file.name}
+                          </p>
+                          <p className="text-text-secondary text-xs text-left">
+                            {formatBytes(file.size)}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => removeFile(e, idx)}
+                        className="p-2 text-text-muted hover:text-accent-red hover:bg-red-50 rounded-lg transition-colors"
+                        title="Remove file"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    {isPdf && (
+                      <div className="mt-3 flex items-center gap-2 pl-[3.25rem] border-t border-blue-100/50 pt-3">
+                        <div className="flex flex-col">
+                          <label className="text-[10px] font-semibold text-text-muted uppercase mb-1">Start Page</label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="e.g. 4"
+                            value={pageRange.start || ""}
+                            onChange={(e) => setFilePageRange(fileId, { ...pageRange, start: e.target.value ? parseInt(e.target.value) : undefined })}
+                            className="w-16 h-8 text-xs px-2 border border-border-light rounded focus:outline-none focus:border-accent-orange bg-white"
+                          />
+                        </div>
+                        <span className="text-text-muted mt-4">-</span>
+                        <div className="flex flex-col">
+                          <label className="text-[10px] font-semibold text-text-muted uppercase mb-1">End Page</label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="e.g. 8"
+                            value={pageRange.end || ""}
+                            onChange={(e) => setFilePageRange(fileId, { ...pageRange, end: e.target.value ? parseInt(e.target.value) : undefined })}
+                            className="w-16 h-8 text-xs px-2 border border-border-light rounded focus:outline-none focus:border-accent-orange bg-white"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              
+              {/* Library Documents */}
+              {libraryFiles.map((doc, idx) => {
+                const isPdf = doc.fileType === "application/pdf" || doc.fileName.endsWith(".pdf");
+                const fileId = `lib-${doc._id}`;
+                const pageRange = filePageRanges[fileId] || {};
+
+                return (
+                  <div
+                    key={fileId}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex flex-col p-3 bg-purple-50/50 rounded-xl border border-purple-100 animate-scale-in w-full max-w-sm mx-auto cursor-default"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex shrink-0 items-center justify-center text-purple-600">
+                          <Library size={20} />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-text-primary font-medium text-sm truncate w-40 sm:w-48 text-left">
+                            {doc.fileName}
+                          </p>
+                          <p className="text-text-secondary text-xs text-left">
+                            {formatBytes(doc.fileSize)} • From Library
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => removeFile(e, idx, true)}
+                        className="p-2 text-text-muted hover:text-accent-red hover:bg-red-50 rounded-lg transition-colors"
+                        title="Remove file"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    {isPdf && (
+                      <div className="mt-3 flex items-center gap-2 pl-[3.25rem] border-t border-purple-100/50 pt-3">
+                        <div className="flex flex-col">
+                          <label className="text-[10px] font-semibold text-text-muted uppercase mb-1">Start Page</label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="e.g. 4"
+                            value={pageRange.start || ""}
+                            onChange={(e) => setFilePageRange(fileId, { ...pageRange, start: e.target.value ? parseInt(e.target.value) : undefined })}
+                            className="w-16 h-8 text-xs px-2 border border-border-light rounded focus:outline-none focus:border-accent-orange bg-white"
+                          />
+                        </div>
+                        <span className="text-text-muted mt-4">-</span>
+                        <div className="flex flex-col">
+                          <label className="text-[10px] font-semibold text-text-muted uppercase mb-1">End Page</label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="e.g. 8"
+                            value={pageRange.end || ""}
+                            onChange={(e) => setFilePageRange(fileId, { ...pageRange, end: e.target.value ? parseInt(e.target.value) : undefined })}
+                            className="w-16 h-8 text-xs px-2 border border-border-light rounded focus:outline-none focus:border-accent-orange bg-white"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            {files.length < 5 && (
+            {totalFiles < 5 && (
               <p className="text-sm text-text-secondary mt-6 text-center">
                 Click or drag to add more files (up to 5)
               </p>
@@ -142,7 +261,19 @@ export default function FileUpload() {
         )}
       </div>
 
-      {error && files.length === 0 && (
+      <div className="mt-6 flex justify-center animate-fade-in">
+        <button
+          onClick={() => setIsLibraryModalOpen(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors shadow-sm font-semibold text-sm border border-blue-200"
+        >
+          <Library size={18} />
+          Browse My Library
+        </button>
+      </div>
+
+      <LibraryModal isOpen={isLibraryModalOpen} onClose={() => setIsLibraryModalOpen(false)} />
+
+      {error && totalFiles === 0 && (
         <p className="mt-3 text-accent-red text-sm font-medium flex items-center gap-1.5 justify-center animate-slide-up">
           <AlertCircle size={16} />
           {error}

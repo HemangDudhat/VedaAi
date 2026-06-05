@@ -89,3 +89,18 @@ export const assignmentApi = {
     });
   },
 };
+
+// --- Library API ---
+export const libraryApi = {
+  list: () => apiClient("/library/documents"),
+  upload: (files: File[]): Promise<{ success: boolean; data: any; error?: string }> => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
+    return apiClient("/library/documents/upload", {
+      method: "POST",
+      headers: {},
+      body: formData,
+    });
+  },
+  delete: (id: string) => apiClient(`/library/documents/${id}`, { method: "DELETE" }),
+};

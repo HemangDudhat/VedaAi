@@ -10,6 +10,7 @@ import { buildGenerationPrompt } from "../services/prompt.service";
 import { generateQuestionPaper } from "../services/ai.service";
 import fs from "fs/promises";
 import path from "path";
+import { PDFDocument } from "pdf-lib";
 
 /**
  * Initialize the BullMQ worker for processing AI question generation jobs.
@@ -73,6 +74,39 @@ export const initGenerationWorker = (): Worker => {
                 // Read text file directly into prompt
                 const text = await fs.readFile(filePath, "utf-8");
                 combinedText += `\n--- Content from ${file.fileName} ---\n${text}\n`;
+              } else if (file.fileType === "application/pdf" && file.pageRange && (file.pageRange.start || file.pageRange.end)) {
+                // Slicing PDF based on pageRange
+                const startPage = Math.max(1, file.pageRange.start || 1);
+                const originalPdfBytes = await fs.readFile(filePath);
+                const originalPdf = await PDFDocument.load(originalPdfBytes);
+                const totalPages = originalPdf.getPageCount();
+                const endPage = Math.min(totalPages, file.pageRange.end || totalPages);
+
+                if (startPage <= endPage) {
+                  const newPdf = await PDFDocument.create();
+                  const pageIndices = [];
+                  for (let i = startPage - 1; i < endPage; i++) {
+                    pageIndices.push(i);
+                  }
+                  
+                  const copiedPages = await newPdf.copyPages(originalPdf, pageIndices);
+                  copiedPages.forEach((page) => newPdf.addPage(page));
+                  
+                  const slicedPdfBytes = await newPdf.save();
+                  const base64Data = Buffer.from(slicedPdfBytes).toString("base64");
+                  
+                  fileDataArray.push({
+                    mimeType: file.fileType,
+                    data: base64Data,
+                  });
+                } else {
+                  // Fallback to full PDF if range is invalid
+                  const base64Data = originalPdfBytes.toString("base64");
+                  fileDataArray.push({
+                    mimeType: file.fileType,
+                    data: base64Data,
+                  });
+                }
               } else {
                 // Read image/pdf as base64 for inlineData
                 const base64Data = await fs.readFile(filePath, "base64");
