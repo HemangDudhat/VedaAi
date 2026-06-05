@@ -1,3 +1,4 @@
+import type { LibraryDocument } from "@/types";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 interface FetchOptions extends RequestInit {
@@ -92,8 +93,9 @@ export const assignmentApi = {
 
 // --- Library API ---
 export const libraryApi = {
-  list: () => apiClient("/library/documents"),
-  upload: (files: File[]): Promise<{ success: boolean; data: any; error?: string }> => {
+  list: (): Promise<{ success: boolean; data: LibraryDocument[] }> =>
+    apiClient("/library/documents"),
+  upload: (files: File[]): Promise<{ success: boolean; data: LibraryDocument[]; error?: string }> => {
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
     return apiClient("/library/documents/upload", {
@@ -102,5 +104,6 @@ export const libraryApi = {
       body: formData,
     });
   },
-  delete: (id: string) => apiClient(`/library/documents/${id}`, { method: "DELETE" }),
+  delete: (id: string): Promise<{ success: boolean }> =>
+    apiClient(`/library/documents/${id}`, { method: "DELETE" }),
 };
