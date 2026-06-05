@@ -29,6 +29,7 @@
     "nodemailer": "^8.0.10",
     "nodemon": "^3.1.14",
     "pdf-lib": "^1.17.1",
+    "typescript": "^5.8.3",
     "ws": "^8.18.3",
     "zod": "^3.25.42"
   },
@@ -42,7 +43,6 @@
     "@types/node": "^22.15.31",
     "@types/nodemailer": "^8.0.0",
     "@types/ws": "*",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3"
+    "ts-node-dev": "^2.0.0"
   }
 }
