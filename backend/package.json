@@ -15,6 +15,15 @@
     "@google/genai": "^2.7.0",
     "@google/generative-ai": "^0.24.1",
     "@imagekit/nodejs": "^7.7.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.15.31",
+    "@types/nodemailer": "^8.0.0",
+    "@types/ws": "*",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.52.2",
     "cookie-parser": "^1.4.7",
@@ -34,15 +43,6 @@
     "zod": "^3.25.42"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cookie-parser": "^1.4.10",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/multer": "^1.4.12",
-    "@types/node": "^22.15.31",
-    "@types/nodemailer": "^8.0.0",
-    "@types/ws": "*",
     "ts-node-dev": "^2.0.0"
   }
 }
