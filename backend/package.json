@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "tsc --ignoreDeprecations 5.0",
     "start": "node dist/index.js",
     "lint": "tsc --noEmit"
   },
@@ -43,6 +43,6 @@
     "@types/nodemailer": "^8.0.0",
     "@types/ws": "*",
     "ts-node-dev": "^2.0.0",
-    "typescript": "5.8.3"
+    "typescript": "^5.8.3"
   }
 }
