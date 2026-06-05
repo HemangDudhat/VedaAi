@@ -45,7 +45,7 @@ export const buildGenerationPrompt = (
     prompt += `\n### Reference Material\n`;
     prompt += `Generate ALL questions strictly based on the following text. Do not invent facts outside of this material:\n`;
     prompt += `--- START OF MATERIAL ---\n${fileText}\n--- END OF MATERIAL ---\n`;
-  } else if (assignment.uploadedFile) {
+  } else if (assignment.uploadedFiles) {
     prompt += `\n### Reference Material\n`;
     prompt += `I have attached a document file to this request. Generate ALL questions strictly based on the content of the attached document. Do not invent facts outside of this material.\n`;
   } else {
